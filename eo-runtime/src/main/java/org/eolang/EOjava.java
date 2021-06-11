@@ -88,7 +88,7 @@ public class EOjava extends EOObject {
      * @param arguments EO string object(s) representing the arguments to pass to the java method
      * @return an {@code EOObject} representing the results of executing the java method
      */
-    public EOObject EOstatic(EOObject javaClass, EOObject methodName, EOObject... arguments) {
+    public EOObject EOstatic1(EOObject javaClass, EOObject methodName, EOObject arguments) {
         EOObject result = new EOstring();
         try {
             Class<?> cls = Class.forName(javaClass._getData().toString());
@@ -96,18 +96,57 @@ public class EOjava extends EOObject {
                     .filter(_method -> _method.getName().equals(
                             methodName._getData().toString())
                     ).findFirst().get();
-            Parameter[] methodParams = method.getParameters();
             method.setAccessible(true);
             result = new EODataObject(
                     method.invoke(
                             cls,
-                            _prepareArgs(methodParams, arguments)
+                            arguments._getData().toFloat()
                     ).toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
         return  result;
     }
+
+    public EOObject EOstatic(EOObject javaClass, EOObject methodName) {
+        EOObject result = new EOstring();
+        try {
+            Class<?> cls = Class.forName(javaClass._getData().toString());
+            Method method = Arrays.stream(cls.getMethods())
+                    .filter(_method -> _method.getName().equals(
+                            methodName._getData().toString())
+                    ).findFirst().get();
+            method.setAccessible(true);
+            result = new EODataObject(
+                    method.invoke(
+                            cls
+                    ).toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  result;
+    }
+
+//    public EOObject EOstatic(EOObject javaClass, EOObject methodName, EOObject... arguments) {
+//        EOObject result = new EOstring();
+//        try {
+//            Class<?> cls = Class.forName(javaClass._getData().toString());
+//            Method method = Arrays.stream(cls.getMethods())
+//                    .filter(_method -> _method.getName().equals(
+//                            methodName._getData().toString())
+//                    ).findFirst().get();
+//            Parameter[] methodParams = method.getParameters();
+//            method.setAccessible(true);
+//            result = new EODataObject(
+//                    method.invoke(
+//                            cls,
+//                            _prepareArgs(methodParams, arguments)
+//                    ).toString());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return  result;
+//    }
 
     private Object[] _prepareArgs(Parameter[] methodParams, EOObject... arguments) {
         List<Object> methodValues = new ArrayList<>();
